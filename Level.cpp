@@ -58,36 +58,39 @@ bool Level::loadNext() {
 }
 
 Tile Level::getTileFor(const Sprite& quad) const {
+    const sdl::Vector2i& movement = quad.getMovement();
     const sdl::Edge edge = quad.getMovementEdge();
-    const sdl::Vector2i edge_pos = quad.getEdgePosition(edge) / TILE_SIZE;
-    sdl::Vector2f pos = quad.getEdgePosition(sdl::Edge::TopLeft);
 
-    // pos.x /= TILE_SIZE;
-    // pos.y /= TILE_SIZE;
+    sdl::Vector2i edge_pos = quad.getEdgePosition(edge);
+
+    if (movement.x < 0)
+        edge_pos.x -= 1;
+    else if (movement.y < 0)
+        edge_pos.y -= 1;
+
+    edge_pos /= TILE_SIZE;
+
+    sdl::Vector2f pos = quad.getEdgePosition(sdl::Edge::TopLeft);
+    pos /= static_cast<f32_t>(TILE_SIZE);
 
     u16_t mask = getTileID(_level, edge_pos.x, edge_pos.y);
 
-    auto fcmp = [](f32_t a, f32_t b) {
-        return std::abs(a - b) < std::numeric_limits<f32_t>::epsilon();
-    };
-
     const f32_t dx = pos.x - static_cast<i16_t>(pos.x);
     const f32_t dy = pos.y - static_cast<i16_t>(pos.y);
+    const sdl::Vector2i delta(dy < 0 ? 1 : -1, dx > 0 ? 1 : -1);
 
-    print(edge_pos.x, ':', edge_pos.y, " = ", mask, " -> ", pos.x, ':', pos.y, ", dx = ", dx, ", dy = ", dy);
-
-    if (!fcmp(dx, 0)) {
-        const i16_t delta = dx > 0 ? 1 : -1;
-        const u16_t m = getTileID(_level, edge_pos.x + delta, edge_pos.y);
+    if (movement.y != 0 && !sdl::CompareFloats(dx, 0)) {
+        // print(edge_pos.x, ':', edge_pos.y, ", mask = ", mask, " -> ", pos.x, ':', pos.y, ", dx = ", dx, ", dy = ", dy);
+        const u16_t m = getTileID(_level, edge_pos.x + delta.x, edge_pos.y + delta.y);
         if (m > 0 && m < mask)
             mask = m;
-        print("Korrigiere nach dx");
-    } else if (!fcmp(dy, 0)) {
-        const i16_t delta = dy > 0 ? 1 : -1;
-        const u16_t m = getTileID(_level, edge_pos.x, edge_pos.y + delta);
+        // print("Korrigiere nach dx, m = ", m, "; mask ist jetzt ", mask);
+    } else if (movement.x != 0 && !sdl::CompareFloats(dy, 0)) {
+        // print(edge_pos.x, ':', edge_pos.y, ", mask = ", mask, " -> ", pos.x, ':', pos.y, ", dx = ", dx, ", dy = ", dy);
+        const u16_t m = getTileID(_level, edge_pos.x + delta.x, edge_pos.y + delta.y);
         if (m > 0 && m < mask)
             mask = m;
-        print("Korrigiere nach dy");
+        // print("Korrigiere nach dy, m = ", m, "; mask ist jetzt ", mask);
     }
 
     return Tile(mask);

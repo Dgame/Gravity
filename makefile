@@ -5,7 +5,7 @@ FRAMEWORK_FILES = $(FRAMEWORK_DIR)\Window.cpp $(FRAMEWORK_DIR)\Color.cpp  $(FRAM
 
 GAME_FILES = main.cpp Level.cpp Sprite.cpp Font.cpp
 
-DIR = ..
+DIR = extlibs
 
 OBJS = $(GAME_FILES) $(FRAMEWORK_FILES)
 CC = g++

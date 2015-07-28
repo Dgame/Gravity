@@ -1,6 +1,13 @@
+#include <limits>
+#include <SDL.h>
+
 #include "Vector2.hpp"
 
 namespace sdl {
+    bool CompareFloats(f32_t a, f32_t b) {
+        return std::abs(a - b) < std::numeric_limits<f32_t>::epsilon();
+    }
+
     Vector2<i32_t>::Vector2(i32_t cx, i32_t cy) : x(cx), y(cy) { }
     Vector2<i32_t>::Vector2(const Vector2<f32_t>& vec) : Vector2(static_cast<i32_t>(vec.x), static_cast<i32_t>(vec.y)) { }
 

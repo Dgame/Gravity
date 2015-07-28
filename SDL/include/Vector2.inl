@@ -87,3 +87,43 @@ Vector2<T>& operator %=(Vector2<T>& lhs, const Vector2<T>& rhs) {
 
     return lhs;
 }
+
+template <typename T>
+Vector2<T>& operator +=(Vector2<T>& lhs, T rhs) {
+    lhs.x += rhs;
+    lhs.y += rhs;
+
+    return lhs;
+}
+
+template <typename T>
+Vector2<T>& operator -=(Vector2<T>& lhs, T rhs) {
+    lhs.x -= rhs;
+    lhs.y -= rhs;
+
+    return lhs;
+}
+
+template <typename T>
+Vector2<T>& operator *=(Vector2<T>& lhs, T rhs) {
+    lhs.x *= rhs;
+    lhs.y *= rhs;
+
+    return lhs;
+}
+
+template <typename T>
+Vector2<T>& operator /=(Vector2<T>& lhs, T rhs) {
+    lhs.x /= rhs;
+    lhs.y /= rhs;
+
+    return lhs;
+}
+
+template <typename T>
+Vector2<T>& operator %=(Vector2<T>& lhs, T rhs) {
+    lhs.x %= rhs;
+    lhs.y %= rhs;
+
+    return lhs;
+}

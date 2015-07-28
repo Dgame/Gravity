@@ -6,6 +6,9 @@
 #include "SDL/include/Event.hpp"
 #include "SDL/include/Color.hpp"
 
+#include "SDL/include/Surface.hpp"
+#include "SDL/include/Texture.hpp"
+
 #include <iostream>
 #include <random>
 #include <array>
@@ -35,6 +38,13 @@ int main() {
 
     Sprite quad("images/rect.png", renderer);
     Level lvl(renderer);
+
+    sdl::Texture* bg;
+    {
+        sdl::Surface my_bg("images/background.png");
+        bg = my_bg.asTextureOf(renderer);
+    }
+    sdl::Rect bg_rect(0, 0, wnd.width(), wnd.height());
 
     // Font font("font/arial.ttf", 12);
 
@@ -68,6 +78,7 @@ int main() {
         }
 
         renderer->clear(&sdl::Color::White);
+        renderer->copy(bg, &bg_rect);
 
         if (DeadFrames == 0) {
             if (check_tile(lvl, quad))

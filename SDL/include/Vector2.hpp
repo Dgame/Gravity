@@ -2,13 +2,14 @@
 #define SDL_VECTOR_HPP
 
 #include <cmath>
-#include <limits>
-
-#include <SDL.h>
 
 #include "types.hpp"
 
+struct SDL_Point;
+
 namespace sdl {
+    bool CompareFloats(f32_t, f32_t);
+
     template <typename T>
     struct Vector2;
 
@@ -90,6 +91,21 @@ namespace sdl {
 
     template <typename T>
     Vector2<T>& operator %=(Vector2<T>&, const Vector2<T>&);
+
+    template <typename T>
+    Vector2<T>& operator +=(Vector2<T>&, T);
+
+    template <typename T>
+    Vector2<T>& operator -=(Vector2<T>&, T);
+
+    template <typename T>
+    Vector2<T>& operator *=(Vector2<T>&, T);
+
+    template <typename T>
+    Vector2<T>& operator /=(Vector2<T>&, T);
+
+    template <typename T>
+    Vector2<T>& operator %=(Vector2<T>&, T);
 
     #include "Vector2.inl"
 }
