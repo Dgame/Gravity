@@ -1,0 +1,3 @@
+[submodule "SDL-Game-Framework"]
+	path = SDL-Game-Framework
+	url = https://github.com/Dgame/SDL-Game-Framework
