@@ -3,6 +3,7 @@
 #include <cmath>
 #include <limits>
 #include <fstream>
+#include <sstream>
 
 #include "debug.hpp"
 
@@ -16,61 +17,59 @@
 #include "SDL/include/Rect.hpp"
 #include "SDL/include/Vector2.hpp"
 
-#define MAPS 1
-#define TILE_COUNT 6
+const std::string Tileset = "tileset=";
+const std::string Data = "data=";
 
-const std::string LevelMaps[MAPS] = {
-    "level1.txt"
-};
+std::string LevelFileFor(u16_t lvl) {
+    std::stringstream ss;
+    ss << "level" << lvl << ".txt";
 
-const std::string TileImages[TILE_COUNT] = {
-    "ground_brittle.png",
-    "thorns_bottom.png",
-    "thorns_left.png",
-    "thorns_right.png",
-    "thorns_top.png",
-    "ground.png",
-};
+    return ss.str();
+}
 
-const u16_t TileMaks[TILE_COUNT + 1] = {
-    Tile::None,
-    Tile::Brittle,
-    Tile::Thorns,
-    Tile::Thorns,
-    Tile::Thorns,
-    Tile::Thorns,
-    Tile::Ground
-};
-
-const std::string Path = "images/";
-
-Tile::Tile(u16_t my_id) : id(my_id), mask(TileMaks[my_id]) { }
-
-Level::Level(sdl::Renderer* renderer) {
-    for (const std::string& file : TileImages) {
-        sdl::Surface srfc(Path + file);
-        _textures.push_back(srfc.asTextureOf(renderer));
-    }
-
+Level::Level(sdl::Renderer* renderer) : _renderer(renderer) {
     _map.reserve(MAP_TILES);
-
-    this->load(0);
+    this->load(1);
 }
 
 bool Level::load(u16_t lvl) {
-    if (lvl >= MAPS)
-        return false;
-
     _level = lvl;
 
-    std::ifstream is(LevelMaps[_level]);
+    const std::string level_file = LevelFileFor(lvl);
+
+    std::ifstream is(level_file);
+    if (!is)
+        return false;
+
+    u16_t img_id = 0;
+
     std::string line;
     while (is) {
         std::getline(is, line);
-        if (line == "data=") {
+
+        auto s = line.find(Tileset);
+        if (s != std::string::npos) {
+            img_id++;
+
+            const u16_t tc = Tileset.size();
+            s += tc;
+            auto e = line.find(',', s);
+
+            const std::string img = line.substr(s, e - tc);
+            if (img_id > _textures.size()) {
+                print("Add new tile image: ", img);
+                sdl::Surface srfc(img);
+                _textures.push_back(srfc.asTextureOf(_renderer));
+            }
+        }
+
+        if (line == Data) {
             break;
         }
     }
+
+    if (_map.size() > 0)
+        _map.clear();
 
     while (is) {
         std::getline(is, line);
@@ -101,7 +100,22 @@ u16_t Level::getTileID(u16_t x, u16_t y) const {
     return _map[index];
 }
 
-Tile Level::getTileFor(const Sprite& quad) const {
+// u16_t Level::setTileID(u16_t x, u16_t y, u16_t id) const {
+//     const u16_t index = y * MAP_HEIGHT + x;
+//     if (index < MAP_TILES) {
+//         _map[index] = id;
+//     }
+// }
+//
+// u16_t Level::reset() const {
+//     for (u16_t& id : _map) {
+//         const Tile tile(id);
+//         if (tile.mask == Tile::Visited)
+//             id--; // since visited is 8 and not visited is 7
+//     }
+// }
+
+Mask Level::getTileFor(const Sprite& quad) const {
     const sdl::Vector2i& movement = quad.getMovement();
     const sdl::Edge edge = quad.getMovementEdge();
 
@@ -137,16 +151,16 @@ Tile Level::getTileFor(const Sprite& quad) const {
         // print("Korrigiere nach dy, m = ", m, "; mask ist jetzt ", mask);
     }
 
-    return Tile(mask);
+    return static_cast<Mask>(mask);
 }
 
-void Level::renderOn(sdl::Renderer* renderer) {
+void Level::render() {
     sdl::Rect dst(0, 0, TILE_SIZE, TILE_SIZE);
 
     for (u16_t id : _map) {
         if (id > 0) {
             sdl::Texture* tex = _textures[id - 1];
-            renderer->copy(tex, &dst);
+            _renderer->copy(tex, &dst);
         }
 
         dst.x += TILE_SIZE;

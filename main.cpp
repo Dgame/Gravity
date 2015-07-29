@@ -103,7 +103,7 @@ int main() {
                 quad.stopMovement();
         }
 
-        lvl.renderOn(renderer);
+        lvl.render();
 
         // font.render("Deaths: " + std::to_string(Deaths));
 
@@ -112,37 +112,50 @@ int main() {
 }
 
 bool check_tile(const Level& lvl, Sprite& quad) {
-    const Tile tile = lvl.getTileFor(quad);
+    const Mask mask = lvl.getTileFor(quad);
     // std::cout << tile.mask << std::endl;
-    if (tile.mask == Tile::None) {
-        const sdl::Vector2i pos = quad.getEdgePosition(sdl::Edge::TopLeft);
+    switch (mask) {
+        case Mask::None:
+        {
+            const sdl::Vector2i pos = quad.getEdgePosition(sdl::Edge::TopLeft);
 
-        if (pos.x > MAP_TILE_WIDTH || pos.x < -(TILE_SIZE * 4)) {
-            quad.setPosition(0, 0);
-            quad.setMovement(0, 0);
-        } else if (pos.y > MAP_TILE_HEIGHT || pos.y < -(TILE_SIZE * 4)) {
-            quad.setPosition(0, 0);
-            quad.setMovement(0, 0);
+            if (pos.x > MAP_TILE_WIDTH || pos.x < -(TILE_SIZE * 4)) {
+                quad.setPosition(0, 0);
+                quad.setMovement(0, 0);
+            } else if (pos.y > MAP_TILE_HEIGHT || pos.y < -(TILE_SIZE * 4)) {
+                quad.setPosition(0, 0);
+                quad.setMovement(0, 0);
+            }
         }
-    } else if (tile.mask == Tile::Thorns) {
-        Deaths += 1;
+        break;
 
-        const sdl::Vector2i center = quad.getCenter();
-        const sdl::Vector2i& movement = quad.getMovement();
+        case Mask::Thorns_Top:
+        case Mask::Thorns_Left:
+        case Mask::Thorns_Right:
+        case Mask::Thorns_Bottom:
+        {
+            Deaths += 1;
 
-        for (u16_t i = 0; i < Fragments.size(); i++) {
-            const i16_t rx = Dist(Gen);
-            const i16_t ry = Dist(Gen);
+            const sdl::Vector2i center = quad.getCenter();
+            const sdl::Vector2i& movement = quad.getMovement();
 
-            const sdl::Vector2i offset(rx + movement.x, ry + movement.y);
-            Fragments[i] = center + offset;
+            for (u16_t i = 0; i < Fragments.size(); i++) {
+                const i16_t rx = Dist(Gen);
+                const i16_t ry = Dist(Gen);
+
+                const sdl::Vector2i offset(rx + movement.x, ry + movement.y);
+                Fragments[i] = center + offset;
+            }
+
+            DeadFrames = 100;
+
+            quad.setPosition(0, 0);
         }
+        break;
 
-        DeadFrames = 100;
-
-        quad.setPosition(0, 0);
-    } else if (tile.mask == Tile::Ground) {
-        quad.setMovement(0, 0);
+        case Mask::Ground:
+            quad.setMovement(0, 0);
+        break;
     }
 
     return DeadFrames == 0;
