@@ -10,6 +10,4 @@
 #define MAP_TILE_HEIGHT (MAP_HEIGHT * TILE_SIZE)
 #define MAP_TILES (MAP_WIDTH * MAP_HEIGHT)
 
-#define MAPS 1
-
 #endif

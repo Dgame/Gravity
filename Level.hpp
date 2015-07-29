@@ -33,6 +33,8 @@ struct Tile {
 class Level {
 private:
     std::vector<sdl::Texture*> _textures;
+    std::vector<u16_t> _map;
+
     u16_t _level = 0;
 
 public:
@@ -41,6 +43,8 @@ public:
     bool load(u16_t);
     bool loadNext();
 
+
+    u16_t getTileID(u16_t, u16_t) const;
     Tile getTileFor(const Sprite&) const;
 
     u16_t getLevel() const {
