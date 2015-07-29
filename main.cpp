@@ -114,8 +114,7 @@ int main() {
 }
 
 bool check_tile(Level& lvl, Sprite& quad) {
-    const Mask mask = lvl.getTileFor(quad);
-    // std::cout << tile.mask << std::endl;
+    const u16_t mask = lvl.getTileFor(quad);
     switch (mask) {
         case Mask::None:
         {

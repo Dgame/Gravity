@@ -113,13 +113,13 @@ void Level::reload() {
     _visited = 0;
 
     for (u16_t& id : _map) {
-        if (static_cast<Mask>(id) == Mask::Visited) {
-            id = static_cast<u16_t>(Mask::Not_Visited);
+        if (id == Mask::Visited) {
+            id = Mask::Not_Visited;
         }
     }
 }
 
-Mask Level::getTileFor(const Sprite& quad) {
+u16_t Level::getTileFor(const Sprite& quad) {
     const sdl::Vector2i& movement = quad.getMovement();
     const sdl::Edge edge = quad.getMovementEdge();
 
@@ -136,30 +136,35 @@ Mask Level::getTileFor(const Sprite& quad) {
     pos /= static_cast<f32_t>(TILE_SIZE);
 
     u16_t mask = this->getTileID(edge_pos.x, edge_pos.y);
-
+/*
     const f32_t dx = pos.x - static_cast<i16_t>(pos.x);
     const f32_t dy = pos.y - static_cast<i16_t>(pos.y);
     const sdl::Vector2i delta(dy < 0 ? 1 : -1, dx > 0 ? 1 : -1);
 
     if (movement.y != 0 && !sdl::CompareFloats(dx, 0)) {
         const u16_t m = this->getTileID(edge_pos.x + delta.x, edge_pos.y + delta.y);
-        if (m > 0 && m < mask)
-            mask = m;
+        print("dx = ", dx, ", m = ", m);
+
+        if (m == Mask::Thorns_Left || m == Mask::Thorns_Right) {
+            return m;
+        }
     } else if (movement.x != 0 && !sdl::CompareFloats(dy, 0)) {
         const u16_t m = this->getTileID(edge_pos.x + delta.x, edge_pos.y + delta.y);
-        if (m > 0 && m < mask)
-            mask = m;
-    }
+        print("dy = ", dy, ", m = ", m);
 
-    const Mask e_mask = static_cast<Mask>(mask);
-    if (e_mask == Mask::Not_Visited) {
+        if (m == Mask::Thorns_Left || m == Mask::Thorns_Right) {
+            return m;
+        }
+    }
+*/
+    if (mask == Mask::Not_Visited) {
         _visited++;
-        this->setTileID(edge_pos.x, edge_pos.y, static_cast<u16_t>(Mask::Visited));
-    } else if (e_mask == Mask::Start && _visited >= NEED_VISIT) {
+        this->setTileID(edge_pos.x, edge_pos.y, Mask::Visited);
+    } else if (mask == Mask::Start && _visited >= NEED_VISIT) {
         this->loadNext();
     }
 
-    return e_mask;
+    return mask;
 }
 
 void Level::render() {

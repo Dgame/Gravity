@@ -16,18 +16,24 @@ namespace sdl {
 
 class Sprite;
 
-enum class Mask {
-    None          = 0,
-    Brittle       = 1,
-    Thorns_Bottom = 2,
-    Thorns_Left   = 3,
-    Thorns_Right  = 4,
-    Thorns_Top    = 5,
-    Ground        = 6,
-    Not_Visited   = 7,
-    Visited       = 8,
-    Start         = 9,
-};
+namespace Mask {
+    enum ID {
+        None          = 0,
+        Brittle       = 1,
+        Thorns_Bottom = 2,
+        Thorns_Left   = 3,
+        Thorns_Right  = 4,
+        Thorns_Top    = 5,
+        Ground        = 6,
+        Not_Visited   = 7,
+        Visited       = 8,
+        Start         = 9,
+    };
+}
+
+inline bool IsThorn(u16_t id) {
+    return id >= Mask::Thorns_Bottom && id <= Mask::Thorns_Top;
+}
 
 std::string LevelFileFor(u16_t);
 
@@ -66,7 +72,7 @@ public:
 
     void reload();
 
-    Mask getTileFor(const Sprite&);
+    u16_t getTileFor(const Sprite&);
 
     void render();
 };
