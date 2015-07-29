@@ -18,7 +18,7 @@ LIBRARY_PATHS = -L $(DIR)\SDL2-2.0.3\lib\x86 \
 				-L $(DIR)\SDL2_image-2.0.0\lib \
 				-L $(DIR)\SDL2_ttf-2.0.12\i686-w64-mingw32\lib
 
-COMPILER_WARNINGS = -Wall -Wnon-virtual-dtor -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations -Wmissing-include-dirs -Wmain -Wzero-as-null-pointer-constant -Wextra -pedantic -Wfatal-errors
+COMPILER_WARNINGS = -Wall -Wnon-virtual-dtor -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-declarations -Wmissing-include-dirs -Wmain -Wzero-as-null-pointer-constant -Wextra -pedantic -Wfatal-errors -Wno-switch
 COMPILER_FLAGS = -std=c++1y
 COMPILER_FLAGS_DEBUG = -g
 COMPILER_FLAGS_RELEASE = -O3

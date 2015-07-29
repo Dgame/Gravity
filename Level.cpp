@@ -17,6 +17,8 @@
 #include "SDL/include/Rect.hpp"
 #include "SDL/include/Vector2.hpp"
 
+#define NEED_VISIT 2
+
 const std::string Tileset = "tileset=";
 const std::string Data = "data=";
 
@@ -32,15 +34,18 @@ Level::Level(sdl::Renderer* renderer) : _renderer(renderer) {
     this->load(1);
 }
 
-bool Level::load(u16_t lvl) {
+void Level::load(u16_t lvl) {
     _level = lvl;
 
     const std::string level_file = LevelFileFor(lvl);
 
     std::ifstream is(level_file);
-    if (!is)
-        return false;
+    if (!is) {
+        _valid = false;
+        return;
+    }
 
+    _valid = true;
     u16_t img_id = 0;
 
     std::string line;
@@ -57,7 +62,6 @@ bool Level::load(u16_t lvl) {
 
             const std::string img = line.substr(s, e - tc);
             if (img_id > _textures.size()) {
-                print("Add new tile image: ", img);
                 sdl::Surface srfc(img);
                 _textures.push_back(srfc.asTextureOf(_renderer));
             }
@@ -85,12 +89,10 @@ bool Level::load(u16_t lvl) {
             _map.push_back(id);
         }
     }
-
-    return true;
 }
 
-bool Level::loadNext() {
-    return this->load(_level + 1);
+void Level::loadNext() {
+    this->load(_level + 1);
 }
 
 u16_t Level::getTileID(u16_t x, u16_t y) const {
@@ -100,22 +102,24 @@ u16_t Level::getTileID(u16_t x, u16_t y) const {
     return _map[index];
 }
 
-// u16_t Level::setTileID(u16_t x, u16_t y, u16_t id) const {
-//     const u16_t index = y * MAP_HEIGHT + x;
-//     if (index < MAP_TILES) {
-//         _map[index] = id;
-//     }
-// }
-//
-// u16_t Level::reset() const {
-//     for (u16_t& id : _map) {
-//         const Tile tile(id);
-//         if (tile.mask == Tile::Visited)
-//             id--; // since visited is 8 and not visited is 7
-//     }
-// }
+void Level::setTileID(u16_t x, u16_t y, u16_t id) {
+    const u16_t index = y * MAP_HEIGHT + x;
+    if (index < MAP_TILES) {
+        _map[index] = id;
+    }
+}
 
-Mask Level::getTileFor(const Sprite& quad) const {
+void Level::reload() {
+    _visited = 0;
+
+    for (u16_t& id : _map) {
+        if (static_cast<Mask>(id) == Mask::Visited) {
+            id = static_cast<u16_t>(Mask::Not_Visited);
+        }
+    }
+}
+
+Mask Level::getTileFor(const Sprite& quad) {
     const sdl::Vector2i& movement = quad.getMovement();
     const sdl::Edge edge = quad.getMovementEdge();
 
@@ -138,20 +142,24 @@ Mask Level::getTileFor(const Sprite& quad) const {
     const sdl::Vector2i delta(dy < 0 ? 1 : -1, dx > 0 ? 1 : -1);
 
     if (movement.y != 0 && !sdl::CompareFloats(dx, 0)) {
-        // print(edge_pos.x, ':', edge_pos.y, ", mask = ", mask, " -> ", pos.x, ':', pos.y, ", dx = ", dx, ", dy = ", dy);
         const u16_t m = this->getTileID(edge_pos.x + delta.x, edge_pos.y + delta.y);
         if (m > 0 && m < mask)
             mask = m;
-        // print("Korrigiere nach dx, m = ", m, "; mask ist jetzt ", mask);
     } else if (movement.x != 0 && !sdl::CompareFloats(dy, 0)) {
-        // print(edge_pos.x, ':', edge_pos.y, ", mask = ", mask, " -> ", pos.x, ':', pos.y, ", dx = ", dx, ", dy = ", dy);
         const u16_t m = this->getTileID(edge_pos.x + delta.x, edge_pos.y + delta.y);
         if (m > 0 && m < mask)
             mask = m;
-        // print("Korrigiere nach dy, m = ", m, "; mask ist jetzt ", mask);
     }
 
-    return static_cast<Mask>(mask);
+    const Mask e_mask = static_cast<Mask>(mask);
+    if (e_mask == Mask::Not_Visited) {
+        _visited++;
+        this->setTileID(edge_pos.x, edge_pos.y, static_cast<u16_t>(Mask::Visited));
+    } else if (e_mask == Mask::Start && _visited >= NEED_VISIT) {
+        this->loadNext();
+    }
+
+    return e_mask;
 }
 
 void Level::render() {

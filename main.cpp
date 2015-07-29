@@ -19,7 +19,8 @@
 #include "Sprite.hpp"
 #include "Font.hpp"
 
-const u16_t Move = 8;
+#define MOVE 8
+#define DEAD_FRAMES 100
 
 std::array<sdl::Vector2i, 16> Fragments;
 u16_t DeadFrames = 0;
@@ -28,7 +29,7 @@ u16_t Deaths = 0;
 std::default_random_engine Gen;
 std::uniform_int_distribution<i16_t> Dist(-4, 4);
 
-bool check_tile(const Level&, Sprite&);
+bool check_tile(Level&, Sprite&);
 
 int main() {
     sdl::Window wnd("Gravity", sdl::Vector2i(100, 100), 640, 480);
@@ -49,7 +50,7 @@ int main() {
     // Font font("font/arial.ttf", 12);
 
     bool running = true;
-    do {
+    while (running && lvl.isValid()) {
         while (sdl::PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 running = false;
@@ -59,16 +60,16 @@ int main() {
                         running = false;
                     break;
                     case SDLK_LEFT:
-                        quad.setMovement(-Move, 0);
+                        quad.setMovement(-MOVE, 0);
                     break;
                     case SDLK_RIGHT:
-                        quad.setMovement(Move, 0);
+                        quad.setMovement(MOVE, 0);
                     break;
                     case SDLK_UP:
-                        quad.setMovement(0, -Move);
+                        quad.setMovement(0, -MOVE);
                     break;
                     case SDLK_DOWN:
-                        quad.setMovement(0, Move);
+                        quad.setMovement(0, MOVE);
                     break;
                     case SDLK_SPACE:
                         quad.stopMovement();
@@ -99,8 +100,9 @@ int main() {
                 vec.y += ry + movement.y;
             }
 
-            if (DeadFrames == 0)
+            if (DeadFrames == 0) {
                 quad.stopMovement();
+            }
         }
 
         lvl.render();
@@ -108,10 +110,10 @@ int main() {
         // font.render("Deaths: " + std::to_string(Deaths));
 
         renderer->present();
-    } while (running);
+    }
 }
 
-bool check_tile(const Level& lvl, Sprite& quad) {
+bool check_tile(Level& lvl, Sprite& quad) {
     const Mask mask = lvl.getTileFor(quad);
     // std::cout << tile.mask << std::endl;
     switch (mask) {
@@ -134,6 +136,8 @@ bool check_tile(const Level& lvl, Sprite& quad) {
         case Mask::Thorns_Right:
         case Mask::Thorns_Bottom:
         {
+            lvl.reload();
+
             Deaths += 1;
 
             const sdl::Vector2i center = quad.getCenter();
@@ -147,7 +151,7 @@ bool check_tile(const Level& lvl, Sprite& quad) {
                 Fragments[i] = center + offset;
             }
 
-            DeadFrames = 100;
+            DeadFrames = DEAD_FRAMES;
 
             quad.setPosition(0, 0);
         }

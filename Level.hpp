@@ -18,14 +18,15 @@ class Sprite;
 
 enum class Mask {
     None          = 0,
-    // Brittle       = 1,
+    Brittle       = 1,
     Thorns_Bottom = 2,
     Thorns_Left   = 3,
     Thorns_Right  = 4,
     Thorns_Top    = 5,
     Ground        = 6,
-    // Not_Visited   = 7,
-    // Visited       = 8,
+    Not_Visited   = 7,
+    Visited       = 8,
+    Start         = 9,
 };
 
 std::string LevelFileFor(u16_t);
@@ -38,19 +39,34 @@ private:
     sdl::Renderer* _renderer;
 
     u16_t _level = 0;
+    u16_t _visited = 0;
+
+    bool _valid = false;
+
+    void load(u16_t);
+    void loadNext();
+
+    u16_t getTileID(u16_t, u16_t) const;
+    void setTileID(u16_t, u16_t, u16_t);
 
 public:
     explicit Level(sdl::Renderer*);
 
-    bool load(u16_t);
-    bool loadNext();
-
-    u16_t getTileID(u16_t, u16_t) const;
-    Mask getTileFor(const Sprite&) const;
+    bool isValid() const {
+        return _valid;
+    }
 
     u16_t getLevel() const {
         return _level;
     }
+
+    u16_t getVisited() const {
+        return _visited;
+    }
+
+    void reload();
+
+    Mask getTileFor(const Sprite&);
 
     void render();
 };
