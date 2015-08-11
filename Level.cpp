@@ -60,10 +60,9 @@ void Level::load(u16_t lvl) {
             s += tc;
             auto e = line.find(',', s);
 
-            const std::string img = line.substr(s, e - tc);
+            const std::string img_file = line.substr(s, e - tc);
             if (img_id > _textures.size()) {
-                sdl::Surface srfc(img);
-                _textures.push_back(srfc.asTextureOf(_renderer));
+                _textures.push_back(_renderer->createTexture(img_file));
             }
         }
 
@@ -89,6 +88,8 @@ void Level::load(u16_t lvl) {
             _map.push_back(id);
         }
     }
+
+    this->timer.stop();
 }
 
 void Level::loadNext() {
@@ -117,6 +118,8 @@ void Level::reload() {
             id = Mask::Not_Visited;
         }
     }
+
+    this->timer.stop();
 }
 
 u16_t Level::getTileFor(const Sprite& quad) {

@@ -7,6 +7,8 @@
 
 #include "SDL/include/Vector2.hpp"
 
+#include "SDL/include/Timer.hpp"
+
 namespace sdl {
     class Renderer;
     class Texture;
@@ -56,6 +58,8 @@ private:
     void setTileID(u16_t, u16_t, u16_t);
 
 public:
+    sdl::Timer timer;
+
     explicit Level(sdl::Renderer*);
 
     bool isValid() const {

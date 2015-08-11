@@ -40,14 +40,11 @@ int main() {
     Sprite quad("images/rect.png", renderer);
     Level lvl(renderer);
 
-    sdl::Texture* bg;
-    {
-        sdl::Surface my_bg("images/background.png");
-        bg = my_bg.asTextureOf(renderer);
-    }
+    sdl::Texture* bg = renderer->createTexture("images/background.png");
     sdl::Rect bg_rect(0, 0, wnd.width(), wnd.height());
 
-    // Font font("font/arial.ttf", 12);
+    Font font("font/arial.ttf", 12);
+    font.setPosition(32, wnd.height() - 32);
 
     bool running = true;
     while (running && lvl.isValid()) {
@@ -55,6 +52,9 @@ int main() {
             if (event.type == SDL_QUIT)
                 running = false;
             else if (event.type == SDL_KEYDOWN) {
+                if (!lvl.timer.isRunning())
+                    lvl.timer.start();
+
                 switch (event.key.key) {
                     case SDLK_ESCAPE:
                         running = false;
@@ -107,7 +107,7 @@ int main() {
 
         lvl.render();
 
-        // font.render("Deaths: " + std::to_string(Deaths));
+        font.format(renderer, "%d s %d ms, Deaths: %d", lvl.timer.getTicks() / 1000, lvl.timer.getTicks() % 1000, Deaths);
 
         renderer->present();
     }

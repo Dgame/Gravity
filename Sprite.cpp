@@ -6,7 +6,7 @@
 
 Sprite::Sprite(const std::string& filename, sdl::Renderer* renderer) {
     sdl::Surface srfc(filename);
-    _texture = srfc.asTextureOf(renderer);
+    _texture = renderer->createTexture(srfc);
 
     _clipRect.width  = srfc.width();
     _clipRect.height = srfc.height();
