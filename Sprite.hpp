@@ -1,9 +1,11 @@
 #ifndef SDL_GAME_SPRITE_HPP
 #define SDL_GAME_SPRITE_HPP
 
+#include <memory>
 #include <string>
 
 #include "SDL/include/Vector2.hpp"
+#include "SDL/include/Texture.hpp"
 #include "SDL/include/Rect.hpp"
 
 namespace sdl {
@@ -15,10 +17,10 @@ class Sprite {
 private:
     sdl::Vector2i _velocity;
     sdl::Rect _clipRect;
-    sdl::Texture* _texture = nullptr;
+    std::unique_ptr<sdl::Texture> _texture;
 
 public:
-    explicit Sprite(const std::string&, sdl::Renderer*);
+    explicit Sprite(const std::string&, sdl::Renderer&);
 
     void setPosition(i16_t x, i16_t y) {
         _clipRect.x = x;
@@ -43,7 +45,7 @@ public:
         return _velocity;
     }
 
-    void drawOn(sdl::Renderer*);
+    void drawOn(sdl::Renderer&);
 };
 
 #endif

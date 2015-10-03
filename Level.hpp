@@ -3,15 +3,16 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+
 #include "types.hpp"
 
 #include "SDL/include/Vector2.hpp"
-
+#include "SDL/include/Texture.hpp"
 #include "SDL/include/Timer.hpp"
 
 namespace sdl {
     class Renderer;
-    class Texture;
 
     struct Rect;
 }
@@ -41,7 +42,7 @@ std::string LevelFileFor(u16_t);
 
 class Level {
 private:
-    std::vector<sdl::Texture*> _textures;
+    std::vector<std::unique_ptr<sdl::Texture>> _textures;
     std::vector<u16_t> _map;
 
     sdl::Renderer* _renderer;
@@ -60,7 +61,7 @@ private:
 public:
     sdl::Timer timer;
 
-    explicit Level(sdl::Renderer*);
+    explicit Level(sdl::Renderer&);
 
     bool isValid() const {
         return _valid;

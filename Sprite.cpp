@@ -1,12 +1,11 @@
 #include "SDL/include/Renderer.hpp"
-#include "SDL/include/Texture.hpp"
 #include "SDL/include/Surface.hpp"
 
 #include "Sprite.hpp"
 
-Sprite::Sprite(const std::string& filename, sdl::Renderer* renderer) {
+Sprite::Sprite(const std::string& filename, sdl::Renderer& renderer) {
     sdl::Surface srfc(filename);
-    _texture = renderer->createTexture(srfc);
+    _texture = std::make_unique<sdl::Texture>(renderer, srfc);
 
     _clipRect.width  = srfc.width();
     _clipRect.height = srfc.height();
@@ -40,9 +39,9 @@ sdl::Edge Sprite::getMovementEdge() const {
     return sdl::Edge::TopLeft;
 }
 
-void Sprite::drawOn(sdl::Renderer* renderer) {
+void Sprite::drawOn(sdl::Renderer& renderer) {
     _clipRect.x += _velocity.x;
     _clipRect.y += _velocity.y;
 
-    renderer->copy(_texture, &_clipRect);
+    renderer.copy(*_texture.get(), &_clipRect);
 }

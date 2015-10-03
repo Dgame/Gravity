@@ -35,9 +35,9 @@ public:
     sdl::Vector2i getPosition() const;
 
     template <typename ...Arguments>
-    void format(sdl::Renderer*, const std::string&, Arguments&&...);
+    void format(sdl::Renderer&, const std::string&, Arguments&&...);
 
-    void renderOn(const std::string&, sdl::Renderer*);
+    void renderOn(const std::string&, sdl::Renderer&);
 
     const sdl::Font* getFont() const {
         return &_font;
@@ -45,7 +45,7 @@ public:
 };
 
 template <typename ...Arguments>
-void Font::format(sdl::Renderer* renderer, const std::string& fmt, Arguments&& ...args) {
+void Font::format(sdl::Renderer& renderer, const std::string& fmt, Arguments&& ...args) {
     const u32_t size = snprintf(nullptr, 0, fmt.c_str(), args...) + 1; // Extra space for '\0'
     std::unique_ptr<char[]> buf(new char[size]);
 

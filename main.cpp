@@ -33,14 +33,14 @@ bool check_tile(Level&, Sprite&);
 
 int main() {
     sdl::Window wnd("Gravity", sdl::Vector2i(100, 100), 640, 480);
-    sdl::Renderer* renderer = wnd.createRenderer(SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    sdl::Renderer renderer(wnd, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     sdl::Event event;
 
     Sprite quad("images/rect.png", renderer);
     Level lvl(renderer);
 
-    sdl::Texture* bg = renderer->createTexture("images/background.png");
+    sdl::Texture bg(renderer, "images/background.png");
     sdl::Rect bg_rect(0, 0, wnd.width(), wnd.height());
 
     Font font("font/arial.ttf", 12);
@@ -55,7 +55,7 @@ int main() {
                 if (!lvl.timer.isRunning())
                     lvl.timer.start();
 
-                switch (event.key.key) {
+                switch (event.keyboard.key) {
                     case SDLK_ESCAPE:
                         running = false;
                     break;
@@ -78,8 +78,8 @@ int main() {
             }
         }
 
-        renderer->clear(&sdl::Color::White);
-        renderer->copy(bg, &bg_rect);
+        renderer.clear(&sdl::Color::White);
+        renderer.copy(bg, &bg_rect);
 
         if (DeadFrames == 0) {
             if (check_tile(lvl, quad))
@@ -87,11 +87,11 @@ int main() {
         } else {
             DeadFrames--;
 
-            renderer->setDrawColor(sdl::Color::Black);
+            renderer.setDrawColor(sdl::Color::Black);
             const sdl::Vector2i& movement = quad.getMovement();
 
             for (sdl::Vector2i& vec : Fragments) {
-                renderer->drawPoint(vec);
+                renderer.drawPoint(vec);
 
                 const i16_t rx = Dist(Gen);
                 const i16_t ry = Dist(Gen);
@@ -109,7 +109,7 @@ int main() {
 
         font.format(renderer, "%d s %d ms, Deaths: %d", lvl.timer.getTicks() / 1000, lvl.timer.getTicks() % 1000, Deaths);
 
-        renderer->present();
+        renderer.present();
     }
 }
 

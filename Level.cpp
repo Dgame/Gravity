@@ -13,7 +13,6 @@
 
 #include "SDL/include/Renderer.hpp"
 #include "SDL/include/Surface.hpp"
-#include "SDL/include/Texture.hpp"
 #include "SDL/include/Rect.hpp"
 #include "SDL/include/Vector2.hpp"
 
@@ -29,7 +28,7 @@ std::string LevelFileFor(u16_t lvl) {
     return ss.str();
 }
 
-Level::Level(sdl::Renderer* renderer) : _renderer(renderer) {
+Level::Level(sdl::Renderer& renderer) : _renderer(&renderer) {
     _map.reserve(MAP_TILES);
     this->load(1);
 }
@@ -62,7 +61,7 @@ void Level::load(u16_t lvl) {
 
             const std::string img_file = line.substr(s, e - tc);
             if (img_id > _textures.size()) {
-                _textures.push_back(_renderer->createTexture(img_file));
+                _textures.emplace_back(new sdl::Texture(*_renderer, img_file));
             }
         }
 
@@ -175,8 +174,8 @@ void Level::render() {
 
     for (u16_t id : _map) {
         if (id > 0) {
-            sdl::Texture* tex = _textures[id - 1];
-            _renderer->copy(tex, &dst);
+            sdl::Texture* tex = _textures[id - 1].get();
+            _renderer->copy(*tex, &dst);
         }
 
         dst.x += TILE_SIZE;
